@@ -5,7 +5,7 @@ import sequelize from './database/index';
 
 class Vehicles {
     static async loadVehicles(listHash: { [name: string]: number }) {
-        return new Promise(async (resolve, reject) => {
+        return new Promise(async () => {
             await sequelize.authenticate();
             let i = 0;
             for (let veh in listHash) {
@@ -43,7 +43,7 @@ class Vehicles {
             acceleration = fixedNum3(acceleration);
             braking = fixedNum3(braking);
 
-            let tst = await VehicleDb.create({
+            let vehD = await VehicleDb.create({
                 name,
                 hash,
                 traction,
@@ -52,7 +52,7 @@ class Vehicles {
                 acceleration,
             });
 
-            await tst.save();
+            await vehD.save();
         } catch (e) {
             console.log('ошибка!');
             await sequelize.close();
