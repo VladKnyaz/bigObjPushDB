@@ -1,5 +1,5 @@
 # bigObjPushDB
-
+---
 Установка:
   кидаем файлы в resources/[system]/test11 (к примеру)
   в test11 прописываем 
