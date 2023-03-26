@@ -1,7 +1,12 @@
 import { Sequelize } from 'sequelize';
 
-const sequelize = new Sequelize('testres', 'root', 'cAfXUqWWWK', {
-    host: 'localhost',
+const dbName = 'test';
+const dbLogin = 'test';
+const dbPass = 'test';
+const dbHost = 'localhost';
+
+const sequelize = new Sequelize(dbName, dbLogin, dbPass, {
+    host: dbHost,
     dialect: 'mysql',
     logging: console.log,
     pool: {
