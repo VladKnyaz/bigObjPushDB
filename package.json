@@ -1,0 +1,18 @@
+{
+    "scripts": {
+        "build": "node prod.build.js",
+        "watch": "node dev.build.js"
+    },
+    "devDependencies": {
+        "@citizenfx/client": "^2.0.6362-1",
+        "@citizenfx/server": "^2.0.6362-1",
+        "@types/node": "^18.15.7",
+        "esbuild": "^0.17.13",
+        "pg-hstore": "^2.3.4",
+        "typescript": "^5.0.2"
+    },
+    "dependencies": {
+        "mysql2": "^3.2.0",
+        "sequelize": "^6.30.0"
+    }
+}
