@@ -16,7 +16,6 @@ onNet('getVehInfo', (name: string, hash: number) => {
             vehiclesInfo.push({ name, hash, traction, speed, braking, acceleration });
         }
 
-        // emitNet('AddVehiclesInfo', name, hash, tract, speed, bracking, accelt);
         if (vehiclesInfo.length < 1) {
             throw Error('Array empty');
         }

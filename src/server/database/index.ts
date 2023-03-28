@@ -2,7 +2,7 @@ import { Sequelize } from 'sequelize';
 
 const dbName = 'testres';
 const dbLogin = 'root';
-const dbPass = 'cAfXUqWWWK';
+const dbPass = 'test';
 const dbHost = 'localhost';
 
 const sequelize = new Sequelize(dbName, dbLogin, dbPass, {
