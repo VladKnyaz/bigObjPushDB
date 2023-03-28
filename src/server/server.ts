@@ -1,92 +1,82 @@
-import { vehicleHashes } from './storage/transport';
 import { VehicleDb } from './database/models/vehicleModel';
-import { fixedNum3 } from './utils';
 import sequelize from './database/index';
+import { IVehicleInfo } from './../globalInterfaces';
+import Transaction from 'sequelize/types/transaction';
 
 class Vehicles {
-    static async loadVehicles(listHash: { [name: string]: number }) {
-        return new Promise(async (resolve, reject) => {
-            await sequelize.authenticate();
-            let i = 0;
-            for (let veh in listHash) {
-                i += 1;
-                // название ТС
-                let name: string = veh;
-
-                // hash ТС
-                let hash: number = listHash[name];
-                // если ТС больше чем 100 шт, чтобы база не выдавала to many connect и клиент игрока не охерел, делаем задержку
-                if (i >= 100) {
-                    setTimeout(() => {
-                        emitNet('getVehInfo', 1, name, hash);
-                    }, 1000 + i * 10);
-                }
-            }
-        }).catch((e) => {
-            console.log('ошибка', e);
-        });
+    static async isVehicleInDb(hash: number, transaction?: Transaction) {
+        try {
+            return await VehicleDb.findOne({
+                where: {
+                    hash,
+                },
+                transaction,
+            });
+        } catch (e: any) {
+            console.error('Ошибка isVehicleInDb', e.message);
+        }
     }
 
-    static async loadInDb(
-        name: string,
-        hash: number,
-        traction: number,
-        speed: number,
-        braking: number,
-        acceleration: number,
-    ) {
+    static async loadInDb(vehiclesInfo: [IVehicleInfo]) {
+        const transaction = await sequelize.transaction();
+
         try {
-            if (!name || !hash || !traction || !speed || !acceleration || !braking) return;
+            let vehicle: IVehicleInfo;
+            for (vehicle of vehiclesInfo) {
+                if (
+                    vehicle.name == undefined ||
+                    vehicle.hash == undefined ||
+                    vehicle.traction == undefined ||
+                    vehicle.speed == undefined ||
+                    vehicle.acceleration == undefined ||
+                    vehicle.braking == undefined
+                ) {
+                    console.log(vehicle);
+                    console.warn('Некоторые свойства объекта не указаны');
+                    return;
+                }
+                let isInDB = await this.isVehicleInDb(vehicle.hash, transaction);
 
-            traction = fixedNum3(traction); // округлеие до 3 знаков
-            speed = fixedNum3(speed);
-            acceleration = fixedNum3(acceleration);
-            braking = fixedNum3(braking);
+                if (isInDB != undefined) continue;
 
-            let tst = await VehicleDb.create({
-                name,
-                hash,
-                traction,
-                speed,
-                braking,
-                acceleration,
-            });
+                let vehDb = await VehicleDb.create(
+                    {
+                        name: vehicle.name,
+                        hash: vehicle.hash,
+                        traction: vehicle.traction,
+                        speed: vehicle.speed,
+                        braking: vehicle.braking,
+                        acceleration: vehicle.acceleration,
+                    },
+                    { transaction },
+                );
+            }
 
-            await tst.save();
-        } catch (e) {
-            console.log('ошибка!');
-            await sequelize.close();
+            await transaction.commit();
+            TriggerClientEvent('chat:addMessage', 1, 'Данные успешно загружены');
+        } catch (e: any) {
+            TriggerClientEvent('chat:addMessage', 1, 'Ошибка: при загрузке данных в бд');
+            console.error('Ошибка loadInDb: ', e.message);
+            await transaction.rollback();
         }
     }
 }
 
-onNet(
-    'AddVehiclesInfo',
-    async (
-        name: string,
-        hash: number,
-        tract: number,
-        speed: number,
-        braking: number,
-        accelt: number,
-    ) => {
-        try {
-            Vehicles.loadInDb(name, hash, tract, speed, braking, accelt);
-        } catch (e) {
-            console.warn('ошибка', e);
-        }
-    },
-);
+onNet('AddVehiclesInfo', async (vehiclesInfo: [IVehicleInfo]) => {
+    try {
+        Vehicles.loadInDb(vehiclesInfo);
+    } catch (e: any) {
+        console.warn('Ошибка AddVehiclesInfo:', e.message);
+    }
+});
 
 RegisterCommand(
     'loadVehDb',
     async () => {
         try {
-            await Vehicles.loadVehicles(vehicleHashes).then(() => {
-                console.log('пуш в бд successfully');
-            });
-        } catch (e) {
-            console.warn('ошибка', e);
+            emitNet('getVehInfo', 1);
+        } catch (e: any) {
+            console.error('Ошибка getVehInfo:', e.message);
         }
     },
     false,

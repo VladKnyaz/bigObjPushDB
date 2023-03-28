@@ -1,16 +1,16 @@
 import { Sequelize } from 'sequelize';
 
-const dbName = 'test';
-const dbLogin = 'test';
-const dbPass = 'test';
+const dbName = 'testres';
+const dbLogin = 'root';
+const dbPass = 'cAfXUqWWWK';
 const dbHost = 'localhost';
 
 const sequelize = new Sequelize(dbName, dbLogin, dbPass, {
     host: dbHost,
     dialect: 'mysql',
-    logging: console.log,
+    logging: false,
     pool: {
-        max: 5200,
+        max: 1,
         min: 1,
         idle: 15000,
     },

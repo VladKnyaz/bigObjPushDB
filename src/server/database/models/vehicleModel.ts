@@ -10,7 +10,7 @@ export const VehicleDb = sequelize.define(
             primaryKey: true,
         },
         hash: {
-            type: DataTypes.BIGINT.UNSIGNED,
+            type: DataTypes.BIGINT,
             allowNull: false,
         },
         name: {
@@ -18,19 +18,19 @@ export const VehicleDb = sequelize.define(
             allowNull: false,
         },
         speed: {
-            type: DataTypes.DOUBLE,
+            type: DataTypes.DECIMAL(10, 3),
             allowNull: false,
         },
         traction: {
-            type: DataTypes.DOUBLE,
+            type: DataTypes.DECIMAL(10, 3),
             allowNull: false,
         },
         braking: {
-            type: DataTypes.DOUBLE,
+            type: DataTypes.DECIMAL(10, 3),
             allowNull: false,
         },
         acceleration: {
-            type: DataTypes.DOUBLE,
+            type: DataTypes.DECIMAL(10, 3),
             allowNull: false,
         },
     },
